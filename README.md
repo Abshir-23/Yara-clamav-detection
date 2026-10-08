@@ -1,6 +1,6 @@
 # YARA + ClamAV Detection
 
-Writing a YARA rule to detect a malicious Office document and running it through ClamAV. Part of the CYB2100 Cyber Defense exam at Kristiania.
+Writing a YARA rule to detect a malicious Office document and running it through ClamAV.
 
 ## Overview
 
