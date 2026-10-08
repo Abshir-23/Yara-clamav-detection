@@ -17,6 +17,22 @@ The scenario gave me a password-protected ZIP containing a Word document with a 
 
 The macro is what carries the harm, so a rule built on its contents holds up even if the attacker re-packages or re-encrypts the file. Matching on multiple independent strings (`all of`) keeps false positives down while staying robust to small changes.
 
+## Screenshots
+
+Inspecting the document with oletools — macros confirmed present:
+
+![oletools analysis](screenshots/01-oleid-analysis.png)
+
+The YARA rule, matching on the macro's distinctive strings:
+
+![YARA rule](screenshots/02-yara-rule.png)
+
+Scanning the sample with ClamAV using the custom rule — detection confirmed:
+
+![ClamAV detection](screenshots/03-clamscan-detection.png)
+
+The rule itself is in [`Teena.yar`](Teena.yar).
+
 ## Tools & concepts
 
 YARA · ClamAV · oletools (oleid, olevba) · VBA macro analysis · signature design
