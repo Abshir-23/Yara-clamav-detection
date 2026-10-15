@@ -1,42 +1,42 @@
-# YARA + ClamAV Detection
+# Deteksjon med YARA og ClamAV
 
-Writing a YARA rule to detect a malicious Office document and running it through ClamAV.
+Skrev en YARA-regel som oppdager et ondsinnet Office-dokument, og kjørte den gjennom ClamAV.
 
-## Overview
+## Oversikt
 
-The scenario gave me a password-protected ZIP containing a Word document with a malicious VBA macro. Because the archive was encrypted and the container could be changed easily, a signature based on the file wrapper would be fragile. The macro held the actual payload, so that was the most reliable place to detect on.
+Scenarioet ga meg en passordbeskyttet ZIP-fil med et Word-dokument som inneholdt en ondsinnet VBA-makro. Siden arkivet var kryptert og innpakningen lett kunne endres, ville en signatur basert på selve filinnpakningen vært skjør. Det var makroen som inneholdt den faktiske nyttelasten, så det var det mest pålitelige stedet å detektere på.
 
-## What I did
+## Hva jeg gjorde
 
-- Opened and decrypted the delivery email, then unlocked the document with the password from the message
-- Analysed the document with **oletools** (`oleid`, `olevba`) and confirmed it contained VBA macros acting as a loader
-- Wrote a **YARA rule** targeting the distinctive strings in the macro: the `ShellExecuteA` and `URLDownloadToFileA` declarations, the download URL, the dropped file path, and the `Sub Document_Open()` auto-run trigger
-- Scanned the sample with **ClamAV** (`clamscan -d`) using the custom rule and confirmed a clean detection
+- Åpnet og dekrypterte e-posten som leverte filen, og låste opp dokumentet med passordet fra meldingen
+- Analyserte dokumentet med **oletools** (`oleid`, `olevba`) og bekreftet at det inneholdt VBA-makroer som fungerte som laster
+- Skrev en **YARA-regel** rettet mot de særegne tekststrengene i makroen: deklarasjonene `ShellExecuteA` og `URLDownloadToFileA`, nedlastingsadressen, stien til filen som slippes, og den automatiske starten `Sub Document_Open()`
+- Skannet prøven med **ClamAV** (`clamscan -d`) med den egne regelen og bekreftet en ren deteksjon
 
-## Why detect on the macro
+## Hvorfor detektere på makroen
 
-The macro is what carries the harm, so a rule built on its contents holds up even if the attacker re-packages or re-encrypts the file. Matching on multiple independent strings (`all of`) keeps false positives down while staying robust to small changes.
+Det er makroen som gjør skaden, så en regel bygget på innholdet i den holder seg selv om angriperen pakker om eller krypterer filen på nytt. Ved å kreve treff på flere uavhengige strenger (`all of`) holdes falske treff nede, samtidig som regelen tåler små endringer.
 
-## Screenshots
+## Skjermbilder
 
-Inspecting the document with oletools — macros confirmed present:
+Undersøkelse av dokumentet med oletools, makroer bekreftet:
 
-![oletools analysis](screenshots/01-oleid-analysis.png)
+![Analyse med oletools](screenshots/01-oleid-analysis.png)
 
-The YARA rule, matching on the macro's distinctive strings:
+YARA-regelen, som treffer på de særegne strengene i makroen:
 
-![YARA rule](screenshots/02-yara-rule.png)
+![YARA-regel](screenshots/02-yara-rule.png)
 
-Scanning the sample with ClamAV using the custom rule — detection confirmed:
+Skanning av prøven med ClamAV og den egne regelen, deteksjon bekreftet:
 
-![ClamAV detection](screenshots/03-clamscan-detection.png)
+![Deteksjon i ClamAV](screenshots/03-clamscan-detection.png)
 
-The rule itself is in [`Teena.yar`](Teena.yar).
+Selve regelen ligger i [`Teena.yar`](Teena.yar).
 
-## Tools & concepts
+## Verktøy og begreper
 
-YARA · ClamAV · oletools (oleid, olevba) · VBA macro analysis · signature design
+YARA · ClamAV · oletools (oleid, olevba) · analyse av VBA-makroer · design av signaturer
 
-## What I took from it
+## Hva jeg lærte
 
-Writing a rule myself made the trade-off clear: detect too specifically and you miss the next variant, too loosely and you drown in false positives. Anchoring on the behaviour that actually does the damage is the sweet spot.
+Å skrive en regel selv gjorde avveiningen tydelig: detekterer du for spesifikt, går du glipp av neste variant, og detekterer du for løst, drukner du i falske treff. Å forankre regelen i oppførselen som faktisk gjør skaden, er den beste balansen.

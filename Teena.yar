@@ -2,7 +2,7 @@ rule vba_invoice_downloader
 {
     meta:
         author = "Abshir"
-        description = "Detects the VBA macro loader found in a phishing document"
+        description = "Oppdager VBA-makrolasteren som ble funnet i et phishing-dokument"
     strings:
         $shell       = "Declare PtrSafe Function ShellExecuteA Lib \"shell32.dll\"" ascii wide
         $url         = "Declare PtrSafe Function URLDownloadToFileA Lib \"urlmon\"" ascii wide
